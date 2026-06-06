@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createSecret, getSecrets, deleteSecret } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -19,11 +19,7 @@ const SecretsManager = ({ organizationId, userRole, setStats }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [secrets]);
 
-  useEffect(() => {
-    if (organizationId) loadSecrets();
-  }, [organizationId]);
-
-  const loadSecrets = async () => {
+  const loadSecrets = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getSecrets(organizationId);
@@ -33,7 +29,14 @@ const SecretsManager = ({ organizationId, userRole, setStats }) => {
     } finally {
       setLoading(false);
     }
-  };
+  },[organizationId]);
+
+  useEffect(() => {
+    if (organizationId) loadSecrets();
+    
+  }, [organizationId, loadSecrets]);
+
+  
 
   const handleCreate = async (e) => {
     e.preventDefault();
