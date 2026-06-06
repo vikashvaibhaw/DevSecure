@@ -39,10 +39,13 @@ const Dashboard = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) { navigate('/login'); return; }
-    loadOrganizations();
-  }, [loadOrganizations]);
+  const token = localStorage.getItem('token');
+  if (!token) {
+    navigate('/login');
+    return;
+  }
+  loadOrganizations();
+}, [loadOrganizations, navigate]);
 
   const handleCreateOrg = async (e) => {
     e.preventDefault();
