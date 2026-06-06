@@ -28,7 +28,7 @@ const GitHubScanner = ({ organizationId, setStats }) => {
     const token = localStorage.getItem('token');
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/scanner/${organizationId}/alerts`, {
+      const response = await fetch(`https://devsecure-1opt.onrender.com/api/scanner/${organizationId}/alerts`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await response.json();
@@ -44,7 +44,7 @@ const GitHubScanner = ({ organizationId, setStats }) => {
     setScanning(true);
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5000/api/scanner/${organizationId}/scan`, {
+      const response = await fetch(`https://devsecure-1opt.onrender.com/api/scanner/${organizationId}/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const GitHubScanner = ({ organizationId, setStats }) => {
   const handleFix = async (alertId) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:5000/api/scanner/${organizationId}/alerts/${alertId}/fix`, {
+      const response = await fetch(`https://devsecure-1opt.onrender.com/api/scanner/${organizationId}/alerts/${alertId}/fix`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
       });
