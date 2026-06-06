@@ -13,8 +13,11 @@ const SecretsManager = ({ organizationId, userRole, setStats }) => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
-    if (setStats) setStats(prev => ({ ...prev, secrets: secrets.length }));
-  }, [secrets, setStats]);
+  if (setStats) {
+    setStats(prev => ({ ...prev, secrets: secrets.length }));
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [secrets]);
 
   useEffect(() => {
     if (organizationId) loadSecrets();

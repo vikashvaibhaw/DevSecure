@@ -4,6 +4,8 @@ import { getOrganizations, createOrganization, switchOrganization, getActiveOrga
 import SecretsManager from '../components/SecretsManager';
 import GitHubScanner from '../components/GitHubScanner';
 import toast from 'react-hot-toast';
+import '../index.css'
+
 
 const Dashboard = () => {
   const navigate = useNavigate();

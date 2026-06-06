@@ -12,12 +12,13 @@ const GitHubScanner = ({ organizationId, setStats }) => {
   const [filter, setFilter] = useState('all');
 
   useEffect(() => {
-    if (organizationId) {
-      fetchAlerts();
-      const saved = localStorage.getItem('github_token');
-      if (saved) setGithubToken(saved);
-    }
-  }, [organizationId]);
+  if (organizationId) {
+    fetchAlerts();
+    const savedToken = localStorage.getItem('github_token');
+    if (savedToken) setGithubToken(savedToken);
+  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [organizationId]);
 
   useEffect(() => {
     if (setStats) setStats(prev => ({ ...prev, alerts: alerts.filter(a => !a.fixed).length }));
