@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });  // ← Changed
+const model = genAI.getGenerativeModel({ model: 'gemini-1.0-pro' });  // ✅ Correct model name
 
 // Security Assistant - Answer security questions
 async function askSecurityAssistant(question, context = {}) {
