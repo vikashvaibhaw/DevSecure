@@ -1,14 +1,14 @@
-const OpenAI = require('openai');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Security Assistant - Answer security questions
 async function askSecurityAssistant(question, context = {}) {
   const { organizationName, userRole } = context;
   
-  const systemPrompt = `You are DevSecure AI, an expert security assistant for an enterprise security platform.
+  const prompt = `You are DevSecure AI, an expert security assistant for an enterprise security platform.
   
 Your role:
 - Help users with security best practices
@@ -23,26 +23,21 @@ Rules:
 - Never ask for or accept real secrets/credentials
 - Focus on security education
 - Provide code examples when helpful
-- Be professional but friendly`;
+- Be professional but friendly
+
+User Question: ${question}`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: question }
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-    });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const answer = response.text();
 
     return {
       success: true,
-      answer: completion.choices[0].message.content,
-      usage: completion.usage
+      answer: answer,
     };
   } catch (error) {
-    console.error('OpenAI API Error:', error);
+    console.error('Gemini API Error:', error);
     return {
       success: false,
       error: error.message,
@@ -63,19 +58,13 @@ Provide:
 3. Recommendations for secure usage`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a security expert. Analyze secrets for risks and provide actionable advice.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.5,
-      max_tokens: 300,
-    });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const analysis = response.text();
 
     return {
       success: true,
-      analysis: completion.choices[0].message.content
+      analysis: analysis
     };
   } catch (error) {
     return {
@@ -94,19 +83,13 @@ Description: ${description}
 Provide step-by-step remediation advice to fix this security issue.`;
 
   try {
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are a security incident responder. Provide clear, actionable remediation steps.' },
-        { role: 'user', content: prompt }
-      ],
-      temperature: 0.5,
-      max_tokens: 400,
-    });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const advice = response.text();
 
     return {
       success: true,
-      advice: completion.choices[0].message.content
+      advice: advice
     };
   } catch (error) {
     return {
