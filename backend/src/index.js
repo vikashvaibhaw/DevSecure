@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
-
+const aiRoutes = require('./routes/aiRoutes');
 const authRoutes = require('./routes/authRoutes');
 const organizationRoutes = require('./routes/organizationRoutes');
 const secretRoutes = require('./routes/secretRoutes');
@@ -30,7 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/organizations', organizationRoutes);
 app.use('/api', secretRoutes);  // Secret routes
 app.use('/api/scanner', scannerRoutes);
-
+app.use('/api/ai', aiRoutes);
 app.get('/api/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW() as time');

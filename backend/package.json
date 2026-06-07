@@ -8,8 +8,8 @@
     "start": "node src/index.js"
   },
   "engines": {
-  "node": "18.x"
-},
+    "node": "18.x"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "express": "^5.2.1",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
+    "openai": "^6.42.0",
     "pg": "^8.21.0"
   },
   "devDependencies": {

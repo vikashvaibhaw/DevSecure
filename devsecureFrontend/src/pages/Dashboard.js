@@ -5,6 +5,7 @@ import SecretsManager from '../components/SecretsManager';
 import GitHubScanner from '../components/GitHubScanner';
 import toast from 'react-hot-toast';
 import '../index.css'
+import AIAssistant from '../components/AIAssistant';
 
 
 const Dashboard = () => {
@@ -534,6 +535,7 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+      <AIAssistant organizationId={activeOrg?.id} />
     </div>
   );
 };
