@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+// Use production URL for Vercel deployment
 const API_BASE = 'https://devsecure-1opt.onrender.com/api';
 
 const AIAssistant = ({ organizationId }) => {
@@ -53,6 +54,7 @@ const AIAssistant = ({ organizationId }) => {
         }]);
       }
     } catch (error) {
+      console.error('AI Chat Error:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'Network error. Please check your connection.' 
