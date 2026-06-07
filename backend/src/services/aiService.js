@@ -1,25 +1,66 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash"
-});  // ✅ Correct model name
+
+// Generate response with retry and fallback
+async function generateResponse(prompt) {
+  const modelNames = [
+    "gemini-2.5-flash",
+    "gemini-2.5-pro"
+  ];
+
+  let lastError = null;
+
+  for (const modelName of modelNames) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+      });
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const result = await model.generateContent(prompt);
+          return result.response.text();
+        } catch (err) {
+          if (err.status === 503 && attempt < 3) {
+            console.log(
+              `${modelName}: Retry ${attempt}/3 after 2 seconds...`
+            );
+
+            await new Promise((resolve) =>
+              setTimeout(resolve, 2000)
+            );
+
+            continue;
+          }
+
+          throw err;
+        }
+      }
+    } catch (err) {
+      console.error(`${modelName} failed:`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("All Gemini models unavailable");
+}
 
 // Security Assistant - Answer security questions
 async function askSecurityAssistant(question, context = {}) {
   const { organizationName, userRole } = context;
-  
+
   const prompt = `You are DevSecure AI, an expert security assistant for an enterprise security platform.
-  
+
 Your role:
 - Help users with security best practices
 - Explain vulnerabilities and how to fix them
 - Provide guidance on secret management, API keys, and credentials
 - Be concise, practical, and actionable
 
-Organization: ${organizationName || 'Unknown'}
-User Role: ${userRole || 'User'}
+Organization: ${organizationName || "Unknown"}
+User Role: ${userRole || "User"}
 
 Rules:
 - Never ask for or accept real secrets/credentials
@@ -30,20 +71,22 @@ Rules:
 User Question: ${question}`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const answer = response.text();
+    const answer = await generateResponse(prompt);
 
     return {
       success: true,
-      answer: answer,
+      answer,
     };
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    console.error("Gemini API Error:", error);
+
     return {
       success: false,
       error: error.message,
-      answer: "I'm having trouble connecting to my AI service. Please try again later."
+      answer:
+        error.status === 503
+          ? "AI service is currently busy. Please try again in a few moments."
+          : "I'm having trouble connecting to my AI service. Please try again later.",
     };
   }
 }
@@ -51,6 +94,7 @@ User Question: ${question}`;
 // Analyze a secret for security risks
 async function analyzeSecret(secretName, secretValue) {
   const prompt = `Analyze this secret for security risks:
+
 Secret Name: ${secretName}
 Secret Value Preview: ${secretValue.substring(0, 20)}...
 
@@ -60,18 +104,18 @@ Provide:
 3. Recommendations for secure usage`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const analysis = response.text();
+    const analysis = await generateResponse(prompt);
 
     return {
       success: true,
-      analysis: analysis
+      analysis,
     };
   } catch (error) {
+    console.error("Gemini API Error:", error);
+
     return {
       success: false,
-      analysis: "Unable to analyze secret at this time."
+      analysis: "Unable to analyze secret at this time.",
     };
   }
 }
@@ -79,26 +123,31 @@ Provide:
 // Generate remediation advice for a security alert
 async function getRemediationAdvice(alertType, description) {
   const prompt = `A security alert was triggered:
+
 Alert Type: ${alertType}
 Description: ${description}
 
 Provide step-by-step remediation advice to fix this security issue.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const advice = response.text();
+    const advice = await generateResponse(prompt);
 
     return {
       success: true,
-      advice: advice
+      advice,
     };
   } catch (error) {
+    console.error("Gemini API Error:", error);
+
     return {
       success: false,
-      advice: "Unable to generate remediation advice at this time."
+      advice: "Unable to generate remediation advice at this time.",
     };
   }
 }
 
-module.exports = { askSecurityAssistant, analyzeSecret, getRemediationAdvice };
+module.exports = {
+  askSecurityAssistant,
+  analyzeSecret,
+  getRemediationAdvice,
+};
