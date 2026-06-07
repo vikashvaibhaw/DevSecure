@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import toast from 'react-hot-toast';
+
 
 // Use production URL for Vercel deployment
 const API_BASE = 'https://devsecure-1opt.onrender.com/api';
